@@ -1,0 +1,20 @@
+services:
+  fraud-detector:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - FAKE_PROB_THRESHOLD=0.6
+      - WHISPER_MODEL_SIZE=base
+      - MAX_UPLOAD_MB=20
+    # Uncomment to mount the checkpoint from disk instead of baking it
+    # into the image (handy while iterating on retrained models):
+    # volumes:
+    #   - ./checkpoints:/app/checkpoints:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
